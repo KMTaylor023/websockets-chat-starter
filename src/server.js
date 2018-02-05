@@ -21,11 +21,12 @@ const io = socketio(app);
 
 const users = {};
 
-
+//sends out a message to entire server
 const serverMsg = (msg) => {
   io.sockets.in('room1').emit('msg', msg);
 };
 
+//sends out a mesasage to an individual socket
 const socketMsg = (sock, msg, name) => {
   const socket = sock;
   const message = { msg };
@@ -37,6 +38,7 @@ const socketMsg = (sock, msg, name) => {
 };
 
 
+//all server commands possible
 const serverCommands = {
   me: (sock, msg) => {
     const socket = sock;
@@ -57,13 +59,12 @@ const serverCommands = {
   },
 };
 
+//what a socet does on join to server
 const onJoined = (sock) => {
   const socket = sock;
 
   socket.on('join', (data) => {
-    const joinMsg = {
-      msg: `There are ${Object.keys(users).length + 1} users online`,
-    };
+    const joinMsg = `There are ${Object.keys(users).length + 1} users online`;
 
     socket.name = data.name;
 
@@ -87,6 +88,7 @@ const onJoined = (sock) => {
   });
 };
 
+//handles server commands
 const handleCommand = (command, msg, sock) => {
   const socket = sock;
 
@@ -97,6 +99,7 @@ const handleCommand = (command, msg, sock) => {
   }
 };
 
+//handles msgToServer events
 const onMsg = (sock) => {
   const socket = sock;
 
@@ -115,6 +118,7 @@ const onMsg = (sock) => {
   });
 };
 
+//handles rename events
 const onRename = (sock) => {
   const socket = sock;
 
@@ -125,6 +129,7 @@ const onRename = (sock) => {
   });
 };
 
+//handles disconnect events
 const onDisconnect = (sock) => {
   const socket = sock;
 
@@ -132,11 +137,10 @@ const onDisconnect = (sock) => {
     const message = `${socket.name} has left the room`;
     socket.broadcast.to('room1').emit('msg', { name: 'server', msg: message });
     socket.leave('room1');
-
+    console.log(`${socket.name} left`);
     delete users[socket.id];
 
-    console.log(`${data.name} left`);
-    socket.close();
+    
   });
 };
 

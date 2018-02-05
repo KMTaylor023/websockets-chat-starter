@@ -49,11 +49,16 @@
           chat.value += msgReveived
         });
         
-        
+        //the event listener for the send button
         send.addEventListener('click', (evt) =>{
           let messageSend = {name:socket.name,};
-          messageSend.msg = message.value;
+          messageSend.msg = message.value.trim();
+          
           message.value = "";
+          
+          if(messageSend.msg === ""){
+            return;
+          }
           
           socket.emit('msgToServer', messageSend);
         });
