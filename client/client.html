@@ -14,6 +14,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
     <script type="text/babel">
 
+
+      const sendMessage = (message, sock) =>{
+        const socket = sock;
+        
+        let messageSend = {name:socket.name,};
+        messageSend.msg = message.value.trim();
+        
+        message.value = "";
+        
+        if(messageSend.msg === ""){
+          return;
+        }
+        
+        socket.emit('msgToServer', messageSend);
+      };
+
       const connectSocket = (e) =>{
         //remove this as the event listener for connect button
         event.target.removeEventListener('click',connectSocket);
@@ -50,19 +66,15 @@
         });
         
         //the event listener for the send button
-        send.addEventListener('click', (evt) =>{
-          let messageSend = {name:socket.name,};
-          messageSend.msg = message.value.trim();
-          
-          message.value = "";
-          
-          if(messageSend.msg === ""){
-            return;
-          }
-          
-          socket.emit('msgToServer', messageSend);
-        });
+        send.addEventListener('click', (e) => {sendMessage(message,socket)});
         
+        //let the user hit enter
+        message.onkeypress = (e) =>{
+          let key = e.keyCode;
+          if(key === 13){
+            sendMessage(message,socket);
+          }
+        };
         
         //add a rename function as the event listener
         event.target.addEventListener('click',(e) =>{
