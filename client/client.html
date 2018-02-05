@@ -10,7 +10,76 @@
          online at your node.js address under /socket.io/socket.io.js 
          You can disable that on the server if desired
     -->
+    <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+    <script type="text/babel">
+
+      const connectSocket = (e) =>{
+        //remove this as the event listener for connect button
+        event.target.removeEventListener('click',connectSocket);
+        event.target.value = "rename";
+        
+        
+        const message = document.querySelector('#message');
+        const chat = document.querySelector('#chat');
+        const socket = io.connect();
+        const send = document.querySelector('#send');
+        
+        
+        socket.on('connect', () =>{
+          console.log('connecting');
+          
+          
+          let user = document.querySelector('#username').value;
+          
+          if(!user){
+            user = 'anon';
+          }
+          
+          socket.name = user;
+          socket.emit('join', {name:user});
+        });
+        
+        socket.on('msg', (data) =>{
+          let msgReveived = data.msg + "\n";
+          
+          if(data.name){
+            msgReveived = data.name + ": " + msgReveived;
+          }
+          chat.value += msgReveived
+        });
+        
+        
+        send.addEventListener('click', (evt) =>{
+          let messageSend = {name:socket.name,};
+          messageSend.msg = message.value;
+          message.value = "";
+          
+          socket.emit('msgToServer', messageSend);
+        });
+        
+        
+        //add a rename function as the event listener
+        event.target.addEventListener('click',(e) =>{
+          let nick = document.querySelector('#username').value;
+          
+          if(!nick || nick === socket.name){
+            return;
+          }
+          
+          socket.emit('rename', {name: nick});
+          
+        });
+      };
+
+      const init = () =>{
+        const connect = document.querySelector('#connect');
+        connect.addEventListener('click', connectSocket);
+      };
+
+      window.onload = init;
+  
+    </script>
 	<style>
 		textarea {
 			display: block;
